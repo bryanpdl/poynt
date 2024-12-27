@@ -168,8 +168,8 @@ export default function Home() {
   }, [showResult]);
 
   const checkForPowerUp = (newScore: number) => {
-    // Award extra life every 15 rounds
-    if (newScore > 0 && newScore % 15 === 0) {
+    // Award extra life every 10 rounds
+    if (newScore > 0 && newScore % 10 === 0) {
       setLives(prev => Math.min(prev + 1, 3));
       setNewLife(true);
       return true;
@@ -256,7 +256,12 @@ export default function Home() {
 
   // Calculate current multiplier based on score
   const getCurrentMultiplier = (currentScore: number) => {
-    return 0.25 + (currentScore * 0.25);
+    // Calculate how many 10-round increments have been completed
+    const incrementLevel = Math.floor(currentScore / 10);
+    // Base increment is 0.15, add 0.10 for each completed 10-round increment
+    const currentIncrement = 0.15 + (incrementLevel * 0.10);
+    // Start at 0.15x and add the current increment for each round
+    return 0.15 + (currentScore * currentIncrement);
   };
 
   // Calculate potential win based on current bet and multiplier
@@ -401,7 +406,7 @@ export default function Home() {
     {
       icon: Coins,
       title: "Betting System",
-      description: "Place bets and win more as your streak grows. Each round adds 0.25× to your multiplier"
+      description: "Place bets and win more as your streak grows. Starting at 0.15×, multiplier increases every round"
     },
     {
       icon: FaTrophy,
