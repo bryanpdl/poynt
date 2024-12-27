@@ -1,4 +1,4 @@
-import React from 'react';
+'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Trophy } from 'lucide-react';
@@ -13,27 +13,26 @@ export default function Navigation({ visible = true }: NavigationProps) {
   if (!visible) return null;
 
   return (
-    <nav className="fixed top-8 left-1/2 -translate-x-1/2 flex items-center h-[52px] px-4 sm:px-0">
-      <div className="flex items-center gap-4 sm:gap-6">
-        <Link 
-          href="/"
-          className={`text-base sm:text-lg font-bold transition-colors ${
-            pathname === '/' ? 'text-white' : 'text-white/50 hover:text-white/80'
-          }`}
-        >
-          Play
-        </Link>
-        <Link 
-          href="/leaderboards"
-          className={`flex items-center gap-1 sm:gap-2 text-base sm:text-lg font-bold transition-colors ${
-            pathname === '/leaderboards' ? 'text-white' : 'text-white/50 hover:text-white/80'
-          }`}
-        >
-          <Trophy className="w-4 h-4 sm:w-5 sm:h-5" />
-          <span className="hidden xs:inline">Leaderboards</span>
-          <span className="xs:hidden">Stats</span>
-        </Link>
-      </div>
+    <nav className="fixed top-4 sm:top-8 left-[140px] sm:left-[220px] flex items-center gap-3 sm:gap-6 text-sm sm:text-base">
+      <Link
+        href="/"
+        className={`
+          px-3 sm:px-4 py-2 sm:py-3 rounded-lg transition-colors
+          ${pathname === '/' ? 'bg-white/10' : 'hover:bg-white/5'}
+        `}
+      >
+        Play
+      </Link>
+      <Link
+        href="/leaderboards"
+        className={`
+          px-3 sm:px-4 py-2 sm:py-3 rounded-lg transition-colors flex items-center gap-1.5 sm:gap-2
+          ${pathname === '/leaderboards' ? 'bg-white/10' : 'hover:bg-white/5'}
+        `}
+      >
+        <Trophy className="w-4 h-4 sm:w-5 sm:h-5" />
+        Stats
+      </Link>
     </nav>
   );
 } 

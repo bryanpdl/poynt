@@ -8,17 +8,19 @@ interface BettingModalProps {
 }
 
 const QUICK_AMOUNTS = [5, 10, 25, 50, 100];
+const MAX_BET_LIMIT = 10000;
 
 export default function BettingModal({ maxBet, onPlaceBet, onCancel }: BettingModalProps) {
   const [betAmount, setBetAmount] = useState<string>('10');
   const [isPlacing, setIsPlacing] = useState(false);
+  const [showError, setShowError] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isPlacing) return;
 
     const amount = parseFloat(betAmount);
-    if (amount > 0 && amount <= maxBet) {
+    if (amount > 0 && amount <= Math.min(maxBet, MAX_BET_LIMIT)) {
       setIsPlacing(true);
       soundManager.play('placeBet');
       setTimeout(() => {
@@ -28,7 +30,7 @@ export default function BettingModal({ maxBet, onPlaceBet, onCancel }: BettingMo
   };
 
   const handleQuickAmount = (amount: number) => {
-    if (amount <= maxBet) {
+    if (amount <= Math.min(maxBet, MAX_BET_LIMIT)) {
       soundManager.play('buttonClick');
       setBetAmount(amount.toFixed(2));
     }
@@ -44,13 +46,13 @@ export default function BettingModal({ maxBet, onPlaceBet, onCancel }: BettingMo
     if (isNaN(currentAmount)) return;
     
     soundManager.play('buttonClick');
-    const newAmount = Math.min(Math.max(currentAmount * multiplier, 1), maxBet);
+    const newAmount = Math.min(Math.max(currentAmount * multiplier, 1), Math.min(maxBet, MAX_BET_LIMIT));
     setBetAmount(newAmount.toFixed(2));
   };
 
   const handleMaxBet = () => {
     soundManager.play('buttonClick');
-    setBetAmount(maxBet.toFixed(2));
+    setBetAmount((Math.min(maxBet, MAX_BET_LIMIT) - 0.01).toFixed(2));
   };
 
   const handleBetAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,6 +61,14 @@ export default function BettingModal({ maxBet, onPlaceBet, onCancel }: BettingMo
     
     // Don't update if empty (to allow clearing the input) or if it's a valid number
     if (value === '' || !isNaN(numericValue)) {
+      // Show error if exceeding MAX_BET_LIMIT
+      if (numericValue > MAX_BET_LIMIT) {
+        setShowError(true);
+        setTimeout(() => setShowError(false), 2000);
+        setBetAmount(MAX_BET_LIMIT.toFixed(2));
+        return;
+      }
+
       // Ensure we don't exceed maxBet
       if (numericValue > maxBet) {
         setBetAmount(maxBet.toFixed(2));
@@ -85,7 +95,7 @@ export default function BettingModal({ maxBet, onPlaceBet, onCancel }: BettingMo
                 value={betAmount}
                 onChange={handleBetAmountChange}
                 min="1"
-                max={maxBet}
+                max={Math.min(maxBet, MAX_BET_LIMIT)}
                 step="0.01"
                 disabled={isPlacing}
                 className="w-full bg-white/5 border-2 border-white/10 rounded-lg px-4 py-3 text-xl font-bold
@@ -126,6 +136,12 @@ export default function BettingModal({ maxBet, onPlaceBet, onCancel }: BettingMo
                 </button>
               </div>
             </div>
+            {/* Error Message */}
+            {showError && (
+              <div className="text-red-500 text-sm animate-fade-in absolute">
+                Maximum bet is $10,000
+              </div>
+            )}
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -134,11 +150,11 @@ export default function BettingModal({ maxBet, onPlaceBet, onCancel }: BettingMo
                 key={amount}
                 type="button"
                 onClick={() => handleQuickAmount(amount)}
-                disabled={amount > maxBet || isPlacing}
+                disabled={amount > Math.min(maxBet, MAX_BET_LIMIT) || isPlacing}
                 className={`
                   px-4 py-2 rounded-lg font-bold
                   transition-all duration-200
-                  ${amount > maxBet || isPlacing
+                  ${amount > Math.min(maxBet, MAX_BET_LIMIT) || isPlacing
                     ? 'bg-white/5 text-white/20 cursor-not-allowed' 
                     : 'bg-white/10 hover:bg-white/20'
                   }

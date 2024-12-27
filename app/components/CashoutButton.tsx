@@ -4,13 +4,14 @@ interface CashoutButtonProps {
   onCashout: () => void;
   amount: number;
   disabled?: boolean;
+  isLoading?: boolean;
 }
 
-export default function CashoutButton({ onCashout, amount, disabled }: CashoutButtonProps) {
+export default function CashoutButton({ onCashout, amount, disabled, isLoading }: CashoutButtonProps) {
   return (
     <button
       onClick={onCashout}
-      disabled={disabled}
+      disabled={disabled || isLoading}
       className={`
         group
         relative
@@ -19,14 +20,16 @@ export default function CashoutButton({ onCashout, amount, disabled }: CashoutBu
         rounded-xl
         font-bold text-xl
         transition-all duration-300
-        ${disabled 
+        ${disabled || isLoading
           ? 'bg-white/5 text-white/20 cursor-not-allowed' 
           : 'bg-green-500 hover:bg-green-600 hover:scale-105'
         }
       `}
     >
       <div className="flex flex-col items-center gap-1">
-        <span className="text-sm opacity-80">Cash Out</span>
+        <span className="text-sm opacity-80">
+          {isLoading ? 'Cashing Out...' : 'Cash Out'}
+        </span>
         <span className="text-2xl font-black">${amount.toFixed(2)}</span>
       </div>
     </button>

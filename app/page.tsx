@@ -38,7 +38,7 @@ const DirectionIcon = ({ direction }: { direction: string }) => {
   };
   
   const Icon = icons[direction as keyof typeof icons];
-  return <Icon className="w-16 h-16 stroke-[3]" />;
+  return <Icon className="w-12 h-12 sm:w-16 sm:h-16 stroke-[3]" />;
 };
 
 const InstructionCard = ({ icon: Icon, title, description }: { icon: any, title: string, description: string }) => {
@@ -98,6 +98,12 @@ export default function Home() {
   // Add state for tracking repeated moves
   const [lastMoves, setLastMoves] = useState<string[]>([]);
   const [isPatternDetected, setIsPatternDetected] = useState(false);
+
+  // Add new state for cashout loading
+  const [isCashingOut, setIsCashingOut] = useState(false);
+
+  // Add new state for frozen timer
+  const [frozenTimeLeft, setFrozenTimeLeft] = useState<number | null>(null);
 
   const directions = ["left", "right", "up", "down"];
 
@@ -278,31 +284,49 @@ export default function Home() {
     setIsPatternDetected(false);
     if (timerInterval) clearInterval(timerInterval);
     setTimeLeft(null);
+    setFrozenTimeLeft(null); // Reset frozen timer
   };
 
   const handleCashout = async () => {
-    if (!user || !userData) return;
+    if (!user || !userData || isCashingOut) return;
 
-    const winAmount = getPotentialWin();
-    const newBalance = userData.wallet + winAmount;
-    
-    setUserData({
-      ...userData,
-      wallet: newBalance
-    });
-    
-    // Update user stats with win
-    await updateUserStats(
-      user.uid,
-      score,
-      getCurrentMultiplier(score),
-      winAmount,
-      false // Indicate this was a win
-    );
+    // Set loading state
+    setIsCashingOut(true);
 
-    setCashedOutAmount(winAmount);
-    setShowCashoutSuccess(true);
-    playSound('cashoutSuccess');
+    // Store the final time value and clear the timer
+    setFrozenTimeLeft(timeLeft);
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      setTimerInterval(null);
+      setTimeLeft(null);
+    }
+
+    try {
+      const winAmount = getPotentialWin();
+      const newBalance = userData.wallet + winAmount;
+      
+      setUserData({
+        ...userData,
+        wallet: newBalance
+      });
+      
+      // Update user stats with win
+      await updateUserStats(
+        user.uid,
+        score,
+        getCurrentMultiplier(score),
+        winAmount,
+        false // Indicate this was a win
+      );
+
+      setCashedOutAmount(winAmount);
+      setShowCashoutSuccess(true);
+      playSound('cashoutSuccess');
+    } catch (error) {
+      console.error('Error cashing out:', error);
+    } finally {
+      setIsCashingOut(false);
+    }
   };
 
   const handleDeposit = (amount: number) => {
@@ -405,7 +429,7 @@ export default function Home() {
 
   if (!gameStarted) {
     return (
-      <div className="min-h-screen bg-[#161616] text-white flex flex-col items-center justify-center p-8">
+      <div className="min-h-screen bg-[#161616] text-white flex flex-col items-center justify-center p-4 sm:p-8">
         <Navigation visible={true} />
 
         {showSignInModal && (
@@ -422,22 +446,22 @@ export default function Home() {
 
         <UserAvatar isMuted={isMuted} onToggleMute={toggleMute} />
 
-        <div className="fixed top-8 left-8">
+        <div className="fixed top-4 sm:top-8 left-4 sm:left-8">
           <WalletDisplay 
             balance={userData?.wallet ?? 0}
             onDeposit={handleDeposit}
           />
         </div>
 
-        <div className="max-w-2xl w-full space-y-12 text-center">
+        <div className="max-w-2xl w-full space-y-8 sm:space-y-12 text-center">
           {/* Title */}
-          <h1 className="text-8xl font-black tracking-tight">
+          <h1 className="text-6xl sm:text-8xl font-black tracking-tight">
             Poynt
           </h1>
 
           {/* Instructions */}
-          <div className="space-y-6">
-            <p className="text-xl">Don't point in the same direction as the computer!</p>
+          <div className="space-y-4 sm:space-y-6">
+            <p className="text-lg sm:text-xl">Don't point in the same direction as the computer!</p>
             <div className="relative">
               <div className="flex justify-center">
                 <div className="w-full max-w-md">
@@ -508,16 +532,15 @@ export default function Home() {
               playSound('buttonClick');
             }}
             className="
-              w-48 h-48
+              w-36 h-36 sm:w-48 sm:h-48
               mx-auto
               rounded-full
               bg-white text-[#161616]
-              text-3xl font-black
+              text-2xl sm:text-3xl font-black
               transition-all duration-200
               hover:scale-105 hover:shadow-lg hover:shadow-white/20
               focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-[#161616]
             "
-            
           >
             PLAY
           </button>
@@ -527,12 +550,12 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-[#161616] text-white flex flex-col items-center p-8">
+    <div className="min-h-screen bg-[#161616] text-white flex flex-col items-center p-4 sm:p-8">
       <Navigation visible={!isGameActive} />
 
       <UserAvatar isMuted={isMuted} onToggleMute={toggleMute} />
 
-      <div className="fixed top-8 left-8">
+      <div className="fixed top-4 sm:top-8 left-4 sm:left-8">
         <WalletDisplay 
           balance={userData?.wallet ?? 0}
           currentBet={currentBet ?? undefined}
@@ -542,18 +565,18 @@ export default function Home() {
       </div>
 
       {/* Header Section */}
-      <h1 className="text-5xl font-black tracking-tight mb-8">Poynt</h1>
+      <h1 className="text-4xl sm:text-5xl font-black tracking-tight mb-4 sm:mb-8 mt-10 sm:mt-8">Poynt</h1>
 
       {/* Game Stats */}
-      <div className="flex gap-8 mb-4">
-        <div className="flex items-center text-2xl gap-2">
+      <div className="flex gap-3 sm:gap-8 mb-3 sm:mb-4">
+        <div className="flex items-center text-lg sm:text-2xl gap-1.5 sm:gap-2">
           <span>Lives:</span>
-          <div className="flex gap-1">
+          <div className="flex gap-0.5 sm:gap-1">
             {[...Array(lives)].map((_, i) => (
               <Heart 
                 key={i} 
                 className={`
-                  w-8 h-8 fill-current animate-heart
+                  w-5 h-5 sm:w-8 sm:h-8 fill-current animate-heart
                   ${newLife && i === lives - 1 ? 'animate-pop' : ''}
                 `}
                 strokeWidth={0}
@@ -561,28 +584,28 @@ export default function Home() {
             ))}
           </div>
         </div>
-        <div className="text-2xl">
+        <div className="text-lg sm:text-2xl">
           <span>Score: {score}</span>
         </div>
       </div>
 
       {/* Timer Bar */}
-      <div className="w-full max-w-md h-2 bg-white/20 rounded-full mb-4 overflow-hidden">
+      <div className="w-full max-w-md h-1.5 sm:h-2 bg-white/20 rounded-full mb-3 sm:mb-4 overflow-hidden">
         <div 
           className="h-full bg-white transition-all duration-100 rounded-full"
           style={{ 
-            width: `${timeLeft === null ? 100 : (timeLeft / getTimerDuration(score)) * 100}%`,
+            width: `${frozenTimeLeft !== null ? (frozenTimeLeft / getTimerDuration(score)) * 100 : timeLeft === null ? 100 : (timeLeft / getTimerDuration(score)) * 100}%`,
             backgroundColor: timeLeft !== null && timeLeft <= 3 ? '#ef4444' : timeLeft !== null && timeLeft <= 5 ? '#eab308' : '#ffffff'
           }}
         />
       </div>
 
       {/* Result Message */}
-      <div className="h-8 flex items-center justify-center mb-4">
+      <div className="h-6 sm:h-8 flex items-center justify-center mb-1 sm:mb-4">
         {showResult && (
           <div
             className={`
-              text-2xl font-bold whitespace-nowrap
+              text-xl sm:text-2xl font-bold whitespace-nowrap
               animate-quick-bounce
               ${lastResult === 'win' ? 'text-green-500' : 'text-red-500'}
             `}
@@ -601,11 +624,11 @@ export default function Home() {
         />
 
         {/* Centered Game Area */}
-        <div className="flex flex-col items-center gap-12">
+        <div className="flex flex-col items-center gap-8 sm:gap-12">
           {/* Computer's Choice Display */}
           <div 
             className={`
-              h-36 w-36
+              h-28 w-28 sm:h-36 sm:w-36
               flex items-center justify-center 
               text-4xl border-4 border-white rounded-xl
               transition-all duration-500
@@ -631,14 +654,14 @@ export default function Home() {
           </div>
 
           {/* Player's Choice Buttons */}
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-2 gap-4 sm:gap-6">
             {directions.map((direction) => (
               <button
                 key={direction}
                 onClick={() => handleDirectionClick(direction)}
                 disabled={isRevealing}
                 className={`
-                  h-36 w-36
+                  h-28 w-28 sm:h-36 sm:w-36
                   border-4 border-white rounded-xl
                   flex items-center justify-center
                   transition-all duration-300
@@ -664,11 +687,12 @@ export default function Home() {
 
       {/* Cashout Button */}
       {isGameActive && (
-        <div className="mt-8 w-full max-w-[324px]">
+        <div className="mt-6 sm:mt-8 w-full max-w-[324px]">
           <CashoutButton
             onCashout={handleCashout}
             amount={getPotentialWin()}
             disabled={isRevealing}
+            isLoading={isCashingOut}
           />
         </div>
       )}
