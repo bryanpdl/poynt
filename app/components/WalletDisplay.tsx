@@ -34,15 +34,15 @@ export default function WalletDisplay({
       >
         <div className="flex items-center gap-1.5 sm:gap-2">
           <Coins className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
-          <div className="font-bold">${balance.toFixed(2)}</div>
+          <div className="font-bold">${balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
           {currentBet !== undefined && (
             <div className="text-[10px] sm:text-sm text-white/50">
-              (-${currentBet.toFixed(2)})
+              (-${currentBet.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
             </div>
           )}
           {potentialWin !== undefined && (
             <div className="text-[10px] sm:text-sm text-green-500">
-              (+${potentialWin.toFixed(2)})
+              (+${potentialWin.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
             </div>
           )}
         </div>
@@ -70,7 +70,7 @@ export default function WalletDisplay({
                 onClick={() => handleDeposit(amount)}
                 className="w-full px-2 sm:px-4 py-1 sm:py-2 text-left hover:bg-white/5 rounded transition-colors text-[10px] sm:text-sm"
               >
-                ${amount.toFixed(2)}
+                ${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </button>
             ))}
           </div>

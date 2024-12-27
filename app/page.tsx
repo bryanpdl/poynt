@@ -214,8 +214,8 @@ export default function Home() {
     // Determine computer's move
     let randomDirection;
     if (isPatternDetected) {
-      // When pattern is detected, 80% chance to match player's move
-      randomDirection = Math.random() < 0.8 ? direction : directions[Math.floor(Math.random() * directions.length)];
+      // When pattern is detected, 60% chance to match player's move
+      randomDirection = Math.random() < 0.6 ? direction : directions[Math.floor(Math.random() * directions.length)];
     } else {
       randomDirection = directions[Math.floor(Math.random() * directions.length)];
     }
@@ -590,7 +590,7 @@ export default function Home() {
           </div>
         </div>
         <div className="text-lg sm:text-2xl">
-          <span>Score: {score}</span>
+          <span>Score: {score.toLocaleString()}</span>
         </div>
       </div>
 
@@ -707,9 +707,9 @@ export default function Home() {
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center animate-fade-in">
           <div className="bg-[#161616] p-8 rounded-lg text-center animate-scale-in">
             <h2 className="text-3xl font-black mb-4">Game Over!</h2>
-            <p className="text-xl mb-2">You survived {score} rounds</p>
+            <p className="text-xl mb-2">You survived {score.toLocaleString()} rounds</p>
             {currentBet !== null && currentBet > 0 && (
-              <p className="text-red-500 text-lg mb-6">Lost bet: ${currentBet.toFixed(2)}</p>
+              <p className="text-red-500 text-lg mb-6">Lost bet: ${currentBet.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
             )}
             <button
               onClick={() => {
@@ -730,9 +730,9 @@ export default function Home() {
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center animate-fade-in">
           <div className="bg-[#161616] p-8 rounded-lg text-center animate-scale-in">
             <h2 className="text-3xl font-black mb-4">Cashed Out!</h2>
-            <p className="text-xl mb-2">You survived {score} rounds</p>
+            <p className="text-xl mb-2">You survived {score.toLocaleString()} rounds</p>
             <p className="text-green-500 text-2xl font-bold mb-6">
-              Won: ${cashedOutAmount.toFixed(2)}
+              Won: ${cashedOutAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
             <button
               onClick={handleCashoutComplete}

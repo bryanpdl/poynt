@@ -42,7 +42,7 @@ export default function BettingModal({ maxBet, onPlaceBet, onCancel }: BettingMo
   };
 
   const handleMultiplier = (multiplier: number) => {
-    const currentAmount = parseFloat(betAmount);
+    const currentAmount = parseFloat(betAmount.replace(/,/g, ''));
     if (isNaN(currentAmount)) return;
     
     soundManager.play('buttonClick');
@@ -57,7 +57,7 @@ export default function BettingModal({ maxBet, onPlaceBet, onCancel }: BettingMo
 
   const handleBetAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    const numericValue = parseFloat(value);
+    const numericValue = parseFloat(value.replace(/,/g, ''));
     
     // Don't update if empty (to allow clearing the input) or if it's a valid number
     if (value === '' || !isNaN(numericValue)) {
@@ -160,7 +160,7 @@ export default function BettingModal({ maxBet, onPlaceBet, onCancel }: BettingMo
                   }
                 `}
               >
-                ${amount}
+                ${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </button>
             ))}
           </div>

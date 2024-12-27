@@ -116,22 +116,32 @@ export default function Leaderboards() {
                 </thead>
                 <tbody>
                   {leaderboardData.map((entry, index) => (
-                    <tr key={index} className="border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors">
-                      <td className="py-4 flex items-center gap-2">
-                        {index < 3 ? (
-                          <Medal className={`w-5 h-5 ${
-                            index === 0 ? 'text-yellow-500' :
-                            index === 1 ? 'text-gray-400' :
-                            'text-amber-600'
-                          }`} />
-                        ) : null}
-                        #{index + 1}
+                    <tr key={index} className="border-b border-white/5">
+                      <td className="py-4 font-bold">
+                        {index === 0 ? (
+                          <div className="flex items-center gap-2 text-yellow-500">
+                            <Medal className="w-5 h-5" />
+                            <span>1st</span>
+                          </div>
+                        ) : index === 1 ? (
+                          <div className="flex items-center gap-2 text-gray-400">
+                            <Medal className="w-5 h-5" />
+                            <span>2nd</span>
+                          </div>
+                        ) : index === 2 ? (
+                          <div className="flex items-center gap-2 text-amber-700">
+                            <Medal className="w-5 h-5" />
+                            <span>3rd</span>
+                          </div>
+                        ) : (
+                          `#${index + 1}`
+                        )}
                       </td>
-                      <td className="py-4 font-bold">{entry.displayName || 'Anonymous'}</td>
-                      <td className="py-4 text-right">{entry.stats.highestScore}</td>
-                      <td className="py-4 text-right">{entry.stats.totalGamesPlayed}</td>
-                      <td className="py-4 text-right">{entry.stats.highestMultiplier.toFixed(2)}×</td>
-                      <td className="py-4 text-right text-green-500">${entry.stats.totalWinnings.toFixed(2)}</td>
+                      <td className="py-4">{entry.displayName}</td>
+                      <td className="py-4 text-right">{entry.stats.highestScore.toLocaleString()}</td>
+                      <td className="py-4 text-right">{entry.stats.totalGamesPlayed.toLocaleString()}</td>
+                      <td className="py-4 text-right">{entry.stats.highestMultiplier.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}×</td>
+                      <td className="py-4 text-right text-green-500">${entry.stats.totalWinnings.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                     </tr>
                   ))}
                   {leaderboardData.length === 0 && (

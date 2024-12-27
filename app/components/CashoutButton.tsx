@@ -30,7 +30,7 @@ export default function CashoutButton({ onCashout, amount, disabled, isLoading }
         <span className="text-sm opacity-80">
           {isLoading ? 'Cashing Out...' : 'Cash Out'}
         </span>
-        <span className="text-2xl font-black">${amount.toFixed(2)}</span>
+        <span className="text-2xl font-black">${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
       </div>
     </button>
   );
