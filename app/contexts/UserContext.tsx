@@ -10,17 +10,20 @@ interface UserContextType {
   user: User | null;
   userData: UserData | null;
   setUserData: (data: UserData | null) => void;
+  isInitializing: boolean;
 }
 
 const UserContext = createContext<UserContextType>({
   user: null,
   userData: null,
   setUserData: () => {},
+  isInitializing: true,
 });
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [userData, setUserData] = useState<UserData | null>(null);
+  const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
     // Set persistence to local
@@ -33,13 +36,14 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       if (!user) {
         setUserData(null);
       }
+      setIsInitializing(false);
     });
 
     return () => unsubscribe();
   }, []);
 
   return (
-    <UserContext.Provider value={{ user, userData, setUserData }}>
+    <UserContext.Provider value={{ user, userData, setUserData, isInitializing }}>
       {children}
     </UserContext.Provider>
   );

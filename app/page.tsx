@@ -54,16 +54,16 @@ const InstructionCard = ({ icon: Icon, title, description }: { icon: any, title:
 };
 
 export default function Home() {
-  const { user, userData, setUserData } = useUser();
+  const { user, userData, setUserData, isInitializing } = useUser();
   const [showSignInModal, setShowSignInModal] = useState(false);
   const [isNewUser, setIsNewUser] = useState(false);
 
   // Show sign in modal if no user is authenticated
   useEffect(() => {
-    if (!user && !showSignInModal) {
+    if (!isInitializing && !user && !showSignInModal) {
       setShowSignInModal(true);
     }
-  }, [user, showSignInModal]);
+  }, [user, showSignInModal, isInitializing]);
 
   // Fetch user data when user changes
   useEffect(() => {

@@ -19,7 +19,7 @@ interface LeaderboardEntry {
 }
 
 export default function Leaderboards() {
-  const { userData, user, setUserData } = useUser();
+  const { userData, user, setUserData, isInitializing } = useUser();
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -55,10 +55,10 @@ export default function Leaderboards() {
   };
 
   useEffect(() => {
-    if (user) {
+    if (!isInitializing && user) {
       fetchLeaderboard();
     }
-  }, [user]);
+  }, [user, isInitializing]);
 
   const handleDeposit = (amount: number) => {
     if (!user || !userData) return;
