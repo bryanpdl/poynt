@@ -9,7 +9,7 @@ import { useUser } from '../contexts/UserContext';
 import { Trophy, Medal } from 'lucide-react';
 
 interface LeaderboardEntry {
-  displayName: string;
+  username: string;
   stats: {
     highestScore: number;
     highestMultiplier: number;
@@ -40,7 +40,7 @@ export default function Leaderboards() {
       querySnapshot.forEach((doc) => {
         const data = doc.data();
         entries.push({
-          displayName: data.displayName,
+          username: data.username || 'Anonymous',
           stats: data.stats
         });
       });
@@ -137,7 +137,7 @@ export default function Leaderboards() {
                           `#${index + 1}`
                         )}
                       </td>
-                      <td className="py-4">{entry.displayName}</td>
+                      <td className="py-4">{entry.username}</td>
                       <td className="py-4 text-right">{entry.stats.highestScore.toLocaleString()}</td>
                       <td className="py-4 text-right">{entry.stats.totalGamesPlayed.toLocaleString()}</td>
                       <td className="py-4 text-right">{entry.stats.highestMultiplier.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}×</td>

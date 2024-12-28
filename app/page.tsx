@@ -10,7 +10,7 @@ import CashoutButton from "./components/CashoutButton";
 import Navigation from './components/Navigation';
 import SignInModal from './components/SignInModal';
 import { useUser } from './contexts/UserContext';
-import { updateUserStats, updateUserWallet, createUserDocument } from './utils/firebase';
+import { updateUserStats, updateUserWallet, createUserDocument, updateUsername } from './utils/firebase';
 import UserAvatar from './components/UserAvatar';
 
 const WIN_MESSAGES = [
@@ -56,6 +56,7 @@ const InstructionCard = ({ icon: Icon, title, description }: { icon: any, title:
 export default function Home() {
   const { user, userData, setUserData } = useUser();
   const [showSignInModal, setShowSignInModal] = useState(false);
+  const [isNewUser, setIsNewUser] = useState(false);
 
   // Show sign in modal if no user is authenticated
   useEffect(() => {
@@ -67,9 +68,31 @@ export default function Home() {
   // Fetch user data when user changes
   useEffect(() => {
     if (user && !userData) {
-      createUserDocument(user).then(setUserData);
+      createUserDocument(user).then((data) => {
+        setUserData(data);
+        // Show sign in modal again if username is empty
+        if (!data.username) {
+          setIsNewUser(true);
+          setShowSignInModal(true);
+        }
+      });
     }
   }, [user, userData, setUserData]);
+
+  const handleUsernameSubmit = async (username: string) => {
+    if (!user) return;
+    
+    await updateUsername(user.uid, username);
+    // Update local user data with the new username
+    if (userData) {
+      setUserData({
+        ...userData,
+        username
+      });
+    }
+    setIsNewUser(false);
+    setShowSignInModal(false);
+  };
 
   // Game State
   const [gameStarted, setGameStarted] = useState(false);
@@ -438,7 +461,11 @@ export default function Home() {
         <Navigation visible={true} />
 
         {showSignInModal && (
-          <SignInModal onSignIn={() => setShowSignInModal(false)} />
+          <SignInModal 
+            onSignIn={() => setShowSignInModal(false)}
+            isNewUser={isNewUser}
+            onUsernameSubmit={handleUsernameSubmit}
+          />
         )}
 
         {showBettingModal && userData && (

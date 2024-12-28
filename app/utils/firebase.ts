@@ -23,34 +23,34 @@ export const googleProvider = new GoogleAuthProvider();
 export interface UserData {
   email: string;
   displayName: string;
+  username: string;
   dateCreated: Date;
   lastLogin: Date;
   wallet: number;
   stats: {
     highestScore: number;
-    totalGamesPlayed: number;
     highestMultiplier: number;
-    biggestWin: number;
+    totalGamesPlayed: number;
     totalWinnings: number;
-  }
+  };
 }
 
 export const createUserDocument = async (user: User): Promise<UserData> => {
   const userRef = doc(db, 'users', user.uid);
-  const userSnap = await getDoc(userRef);
+  const userDoc = await getDoc(userRef);
 
-  if (!userSnap.exists()) {
+  if (!userDoc.exists()) {
     const userData: UserData = {
       email: user.email || '',
       displayName: user.displayName || '',
+      username: '', // Initially empty, to be set later
       dateCreated: new Date(),
       lastLogin: new Date(),
-      wallet: 500, // Starting balance
+      wallet: 1000, // Starting balance
       stats: {
         highestScore: 0,
-        totalGamesPlayed: 0,
         highestMultiplier: 0,
-        biggestWin: 0,
+        totalGamesPlayed: 0,
         totalWinnings: 0
       }
     };
@@ -60,7 +60,6 @@ export const createUserDocument = async (user: User): Promise<UserData> => {
       dateCreated: serverTimestamp(),
       lastLogin: serverTimestamp(),
     });
-
     return userData;
   }
 
@@ -69,14 +68,24 @@ export const createUserDocument = async (user: User): Promise<UserData> => {
     lastLogin: serverTimestamp(),
   });
 
-  return userSnap.data() as UserData;
+  return userDoc.data() as UserData;
+};
+
+export const updateUsername = async (userId: string, username: string): Promise<void> => {
+  const userRef = doc(db, 'users', userId);
+  await updateDoc(userRef, { username });
 };
 
 export const signInWithGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, googleProvider);
     const userData = await createUserDocument(result.user);
-    return { user: result.user, userData };
+    // Return whether this is a new user (no username set)
+    return { 
+      user: result.user, 
+      userData,
+      isNewUser: !userData.username 
+    };
   } catch (error) {
     console.error('Error signing in with Google:', error);
     throw error;
