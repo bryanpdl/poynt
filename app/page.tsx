@@ -481,7 +481,6 @@ export default function Home() {
         <div className="fixed top-4 sm:top-8 left-4 sm:left-8">
           <WalletDisplay 
             balance={userData?.wallet ?? 0}
-            onDeposit={handleDeposit}
           />
         </div>
 
@@ -592,7 +591,6 @@ export default function Home() {
           balance={userData?.wallet ?? 0}
           currentBet={currentBet ?? undefined}
           potentialWin={currentBet ? getPotentialWin() : undefined}
-          onDeposit={handleDeposit}
         />
       </div>
 

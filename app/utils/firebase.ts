@@ -26,8 +26,10 @@ export interface UserData {
   username: string;
   dateCreated: Date;
   lastLogin: Date;
+  lastTopUp: Date | null;
   wallet: number;
   stats: {
+    biggestWin: number;
     highestScore: number;
     highestMultiplier: number;
     totalGamesPlayed: number;
@@ -46,8 +48,10 @@ export const createUserDocument = async (user: User): Promise<UserData> => {
       username: '', // Initially empty, to be set later
       dateCreated: new Date(),
       lastLogin: new Date(),
+      lastTopUp: null,
       wallet: 1000, // Starting balance
       stats: {
+        biggestWin: 0,
         highestScore: 0,
         highestMultiplier: 0,
         totalGamesPlayed: 0,
@@ -68,7 +72,14 @@ export const createUserDocument = async (user: User): Promise<UserData> => {
     lastLogin: serverTimestamp(),
   });
 
-  return userDoc.data() as UserData;
+  // Convert Firestore timestamps to Dates
+  const data = userDoc.data();
+  return {
+    ...data,
+    dateCreated: data.dateCreated?.toDate() || new Date(),
+    lastLogin: data.lastLogin?.toDate() || new Date(),
+    lastTopUp: data.lastTopUp?.toDate() || null
+  } as UserData;
 };
 
 export const updateUsername = async (userId: string, username: string): Promise<void> => {
@@ -134,5 +145,12 @@ export const updateUserWallet = async (userId: string, newBalance: number) => {
   const userRef = doc(db, 'users', userId);
   await updateDoc(userRef, {
     wallet: newBalance
+  });
+};
+
+export const updateLastTopUp = async (userId: string): Promise<void> => {
+  const userRef = doc(db, 'users', userId);
+  await updateDoc(userRef, { 
+    lastTopUp: serverTimestamp(),
   });
 }; 

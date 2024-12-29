@@ -80,7 +80,6 @@ export default function Leaderboards() {
       <div className="fixed top-8 left-8">
         <WalletDisplay 
           balance={userData?.wallet ?? 0}
-          onDeposit={handleDeposit}
         />
       </div>
 
